@@ -1,0 +1,35 @@
+name: transform-bound-authority
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "tba/**"
+      - "tests/test_tba.py"
+      - "docs/**"
+      - "README.md"
+      - ".github/workflows/transform-bound-authority.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-proof-surface:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile
+        run: python -m compileall -q tba
+
+      - name: Run bounded adversarial suite
+        run: python -m unittest discover -s tests -p 'test_tba.py' -v
+
+      - name: Run falsifier demo
+        run: python -m tba.demo
